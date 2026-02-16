@@ -9,6 +9,7 @@
 // To render the README directly, run `mvn asciidoc-template::build`
 //
 
+This project is a continuation of https://github.com/confluentinc/parallel-consumer
 
 // dynamic include base for editing in IDEA
 :project_root: ./
