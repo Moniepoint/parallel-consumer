@@ -169,7 +169,7 @@
                                             <onlyWhenRelease>false</onlyWhenRelease>
                                             <failWhenParentIsSnapshot>false</failWhenParentIsSnapshot>
                                             <excludes>
-                                                <exclude>io.confluent.parallelconsumer:</exclude>
+                                                <exclude>com.moniepoint.parallelconsumer:</exclude>
                                             </excludes>
                                         </requireReleaseDeps>
                                     </rules>
