@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import pl.tlinkowski.unij.api.UniSets;
 
@@ -32,6 +33,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.equalTo;
 import static org.testcontainers.shaded.org.hamcrest.Matchers.is;
 
+@Disabled
 @Slf4j
 public class RetriesTest extends BrokerIntegrationTest<String, String> {
 

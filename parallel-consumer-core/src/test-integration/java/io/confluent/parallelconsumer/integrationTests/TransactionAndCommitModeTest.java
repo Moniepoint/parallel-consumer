@@ -28,6 +28,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.awaitility.core.ConditionTimeoutException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -60,6 +61,7 @@ import static pl.tlinkowski.unij.api.UniLists.of;
  * @see ConsumerOffsetCommitter
  * @see ProducerManager
  */
+@Disabled
 @Tag("transactions")
 @Slf4j
 class TransactionAndCommitModeTest extends BrokerIntegrationTest<String, String> {

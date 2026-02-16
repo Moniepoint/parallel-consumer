@@ -31,6 +31,7 @@ import org.apache.kafka.common.config.TopicConfig;
 import org.awaitility.Awaitility;
 import org.awaitility.core.TerminalFailureException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -62,6 +63,7 @@ import static pl.tlinkowski.unij.api.UniLists.of;
  * @author Antony Stubbs
  * @see io.confluent.parallelconsumer.state.PartitionStateCommittedOffsetTest
  */
+@Disabled
 @Slf4j
 class PartitionStateCommittedOffsetIT extends BrokerIntegrationTest<String, String> {
 

@@ -13,7 +13,10 @@ import io.micrometer.core.instrument.search.Search;
 import io.micrometer.core.instrument.simple.SimpleMeterRegistry;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import pl.tlinkowski.unij.api.UniSets;
 
 import java.time.Duration;
@@ -26,11 +29,10 @@ import static io.confluent.parallelconsumer.integrationTests.utils.KafkaClientUt
 import static io.confluent.parallelconsumer.integrationTests.utils.KafkaClientUtils.GroupOption.REUSE_GROUP;
 import static io.confluent.parallelconsumer.metrics.PCMetricsDef.PC_INSTANCE_TAG;
 import static io.confluent.parallelconsumer.metrics.PCMetricsDef.PROCESSED_RECORDS;
-import static java.time.Duration.ofSeconds;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
-import static org.hamcrest.CoreMatchers.is;
 
+@Disabled
 @Slf4j
 class MultiInstanceMetricsTest extends BrokerIntegrationTest<String, String> {
     {

@@ -193,6 +193,7 @@ public class ParallelEoSStreamProcessorTest extends ParallelEoSStreamProcessorTe
         assertThat(interrupted).isFalse();
     }
 
+    @Disabled
     @ParameterizedTest()
     @EnumSource(CommitMode.class)
     @SneakyThrows

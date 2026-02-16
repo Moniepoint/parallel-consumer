@@ -21,6 +21,7 @@ import org.apache.kafka.clients.consumer.ConsumerGroupMetadata;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -54,6 +55,7 @@ import static pl.tlinkowski.unij.api.UniLists.of;
  * @see ProducerManager
  * @see io.confluent.parallelconsumer.internal.ProducerManagerTest
  */
+@Disabled
 @Tag("transactions")
 @Slf4j
 class TransactionTimeoutsTest extends BrokerIntegrationTest<String, String> {

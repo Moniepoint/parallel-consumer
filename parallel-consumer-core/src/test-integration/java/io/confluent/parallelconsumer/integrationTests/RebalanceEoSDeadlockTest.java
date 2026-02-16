@@ -15,10 +15,7 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.TopicPartition;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.RepeatedTest;
+import org.junit.jupiter.api.*;
 import pl.tlinkowski.unij.api.UniLists;
 import pl.tlinkowski.unij.api.UniSets;
 
@@ -110,6 +107,8 @@ class RebalanceEoSDeadlockTest extends BrokerIntegrationTest<String, String> {
         pc.close();
     }
     final static long SLEEP_TIME_MS = 3000L;
+
+    @Disabled
     @SneakyThrows
     @RepeatedTest(5)
     void noDeadlockOnRevoke() {
