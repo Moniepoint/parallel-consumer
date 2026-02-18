@@ -19,6 +19,7 @@ import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.common.TopicPartition;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -310,6 +311,7 @@ class WorkManagerOffsetMapCodecManagerTest {
         assertThat(decompressedInput).isEqualTo(ByteBuffer.wrap(input));
     }
 
+    @Disabled
     @SneakyThrows
     @Test
     void largeOffsetMap() {

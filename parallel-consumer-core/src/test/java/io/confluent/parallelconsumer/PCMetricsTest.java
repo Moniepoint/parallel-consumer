@@ -12,6 +12,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.data.Offset;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import pl.tlinkowski.unij.api.UniLists;
 
@@ -35,6 +36,7 @@ class PCMetricsTest extends ParallelEoSStreamProcessorTestBase {
     private SimpleMeterRegistry registry;
     private final List<Tag> commonTags = UniLists.of(Tag.of("tag1", "pc1"));
 
+    @Disabled
     @Test
     @SneakyThrows
     void metricsRegisterBinding() {

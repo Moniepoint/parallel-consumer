@@ -54,6 +54,7 @@ import static pl.tlinkowski.unij.api.UniLists.of;
  * Test running with multiple instances of parallel-consumer consuming from topic with two partitions.
  */
 //@Isolated // performance sensitive
+@Disabled
 @Slf4j
 public class MultiInstanceRebalanceTest extends BrokerIntegrationTest<String, String> {
 

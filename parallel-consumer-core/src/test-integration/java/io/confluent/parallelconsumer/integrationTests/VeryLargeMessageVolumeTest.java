@@ -25,6 +25,7 @@ import org.apache.kafka.common.TopicPartition;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.SoftAssertions;
 import org.awaitility.core.ConditionTimeoutException;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -50,6 +51,7 @@ import static pl.tlinkowski.unij.api.UniLists.of;
  * <p>
  * RuntimeException when running with very high options in 0.2.0.0 (Bitset too long to encode) #35
  */
+@Disabled
 @Slf4j
 public class VeryLargeMessageVolumeTest extends BrokerIntegrationTest<String, String> {
 

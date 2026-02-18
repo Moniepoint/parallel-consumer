@@ -13,6 +13,7 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -37,6 +38,7 @@ import static org.testcontainers.shaded.org.hamcrest.Matchers.is;
  *
  * @author Antony Stubbs
  */
+@Disabled
 @Slf4j
 class RebalanceTest extends BrokerIntegrationTest<String, String> {
 

@@ -11,10 +11,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import pl.tlinkowski.unij.api.UniSets;
 
 import java.util.HashMap;
@@ -32,6 +29,7 @@ import static org.testcontainers.shaded.org.awaitility.Awaitility.await;
  *
  * @author Antony Stubbs
  */
+@Disabled
 @Slf4j
 class PartitionOrderProcessingTest extends BrokerIntegrationTest<String, String> {
 

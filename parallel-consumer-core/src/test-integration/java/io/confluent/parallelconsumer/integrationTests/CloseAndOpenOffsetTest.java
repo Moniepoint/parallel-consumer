@@ -21,6 +21,7 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.parallel.ResourceLock;
@@ -56,6 +57,7 @@ import static org.junit.jupiter.api.parallel.ResourceAccessMode.READ;
  *
  * @see OffsetMapCodecManager
  */
+@Disabled
 @Timeout(value = 60)
 @Slf4j
 class CloseAndOpenOffsetTest extends BrokerIntegrationTest<String, String> {

@@ -36,6 +36,7 @@ delombok/
 
 # User-specific stuff
 .idea/**/workspace.xml
+.idea/**/go.imports.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
