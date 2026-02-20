@@ -479,7 +479,7 @@ public class ParallelConsumerOptions<K, V> {
      * @see ParallelConsumerOptions#batchSize
      */
     @Builder.Default
-    private final boolean stackBatches = false;
+    private final boolean stackBatches = true;
 
     /**
      * Configure the amount of delay a record experiences, before a warning is logged.
