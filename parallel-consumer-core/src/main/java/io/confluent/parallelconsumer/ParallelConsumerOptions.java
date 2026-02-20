@@ -76,6 +76,12 @@ public class ParallelConsumerOptions<K, V> {
     private final String managedThreadFactory = "java:comp/DefaultManagedThreadFactory";
 
     /**
+     * If enabled, virtual threads are used instead of managed thread factory
+     */
+    @Builder.Default
+    private final boolean useVirtualThreads = false;
+
+    /**
      * Micrometer MeterRegistry
      * <p>
      * Optional - if not specified CompositeMeterRegistry will be used which is NoOp

@@ -350,7 +350,18 @@ public abstract class AbstractParallelEoSStreamProcessor<K, V> implements Parall
     }
 
     protected ThreadPoolExecutor setupWorkerPool(int poolSize) {
-        ThreadFactory finalDefaultFactory = Thread.ofVirtual().factory();
+        ThreadFactory defaultFactory;
+        if (options.isUseVirtualThreads()) {
+            defaultFactory = Thread.ofVirtual().factory();
+        } else {
+            try {
+                defaultFactory = InitialContext.doLookup(options.getManagedThreadFactory());
+            } catch (NamingException e) {
+                log.debug("Using Java SE Thread", e);
+                defaultFactory = Executors.defaultThreadFactory();
+            }
+        }
+        ThreadFactory finalDefaultFactory = defaultFactory;
         ThreadFactory namingThreadFactory = r -> {
             Thread thread = finalDefaultFactory.newThread(r);
             String name = thread.getName().isEmpty() ? String.valueOf(thread.threadId()) : thread.getName();
