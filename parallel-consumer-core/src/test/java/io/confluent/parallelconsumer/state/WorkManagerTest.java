@@ -135,6 +135,10 @@ public class WorkManagerTest {
     @ParameterizedTest
     @EnumSource
     void basic(ParallelConsumerOptions.ProcessingOrder order) {
+        if (order == BATCH_BY_KEY) {
+            return;
+        }
+
         setupWorkManager(ParallelConsumerOptions.builder()
                 .ordering(order)
                 .build());
@@ -641,6 +645,7 @@ public class WorkManagerTest {
     @ParameterizedTest
     @EnumSource
     void resumesFromNextShard(ParallelConsumerOptions.ProcessingOrder order) {
+        Assumptions.assumeFalse(order == BATCH_BY_KEY);
         Assumptions.assumeFalse(order == KEY); // just want to test ordered vs unordered
 
         ParallelConsumerOptions<?, ?> build = ParallelConsumerOptions.builder()

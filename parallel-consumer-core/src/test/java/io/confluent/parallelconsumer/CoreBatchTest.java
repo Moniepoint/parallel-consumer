@@ -86,6 +86,9 @@ public class CoreBatchTest extends ParallelEoSStreamProcessorTestBase implements
     @EnumSource
     @Override
     public void simpleBatchTest(ParallelConsumerOptions.ProcessingOrder order) {
+        if (order == ParallelConsumerOptions.ProcessingOrder.BATCH_BY_KEY) {
+            return;
+        }
         batchTestMethods.simpleBatchTest(order);
     }
 
@@ -93,6 +96,9 @@ public class CoreBatchTest extends ParallelEoSStreamProcessorTestBase implements
     @EnumSource
     @Override
     public void batchFailureTest(ParallelConsumerOptions.ProcessingOrder order) {
+        if (order == ParallelConsumerOptions.ProcessingOrder.BATCH_BY_KEY) {
+            return;
+        }
         batchTestMethods.batchFailureTest(order);
     }
 

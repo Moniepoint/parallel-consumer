@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import static io.confluent.csid.utils.BackportUtils.toSeconds;
 import static io.confluent.csid.utils.JavaUtils.isGreaterThan;
 import static io.confluent.csid.utils.StringUtils.msg;
+import static io.confluent.parallelconsumer.ParallelConsumerOptions.ProcessingOrder.BATCH_BY_KEY;
 import static io.confluent.parallelconsumer.ParallelConsumerOptions.ProcessingOrder.UNORDERED;
 import static lombok.AccessLevel.PRIVATE;
 
@@ -146,6 +147,10 @@ public class ProcessingShard<K, V> {
                     addToSlowWorkMaybe(slowWork, workContainer);
                 }
 
+                if (isBatchHomogeneous() && workTaken.size() >= options.getSingleKeyBatchSize()) {
+                    break;
+                }
+
                 if (isOrderRestricted()) {
                     // can't take any more work from this shard, due to ordering restrictions
                     // processing blocked on this shard, continue to next shard
@@ -223,7 +228,11 @@ public class ProcessingShard<K, V> {
     }
 
     private boolean isOrderRestricted() {
-        return options.getOrdering() != UNORDERED;
+        return options.getOrdering() != UNORDERED && options.getOrdering() != BATCH_BY_KEY;
+    }
+
+    private boolean isBatchHomogeneous() {
+        return options.getOrdering() == BATCH_BY_KEY;
     }
 
     // check if the work container is stale

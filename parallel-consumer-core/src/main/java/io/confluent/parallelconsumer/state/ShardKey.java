@@ -30,7 +30,7 @@ public class ShardKey {
 
     public static ShardKey of(ConsumerRecord<?, ?> rec, ProcessingOrder ordering) {
         return switch (ordering) {
-            case KEY -> ofKey(rec);
+            case KEY, BATCH_BY_KEY -> ofKey(rec);
             case PARTITION, UNORDERED -> ofTopicPartition(rec);
         };
     }
