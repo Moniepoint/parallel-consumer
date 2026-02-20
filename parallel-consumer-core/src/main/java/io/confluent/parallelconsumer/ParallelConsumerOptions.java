@@ -474,6 +474,14 @@ public class ParallelConsumerOptions<K, V> {
     }
 
     /**
+     * If enabled, small batches are joined up to {@link ParallelConsumerOptions#batchSize}
+     *
+     * @see ParallelConsumerOptions#batchSize
+     */
+    @Builder.Default
+    private final boolean stackBatches = false;
+
+    /**
      * Configure the amount of delay a record experiences, before a warning is logged.
      */
     @Builder.Default

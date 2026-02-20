@@ -1127,6 +1127,10 @@ public abstract class AbstractParallelEoSStreamProcessor<K, V> implements Parall
 
     private List<List<WorkContainer<K, V>>> partitionInHeterogeneousUniqueBatches(Collection<WorkContainer<K, V>> sourceCollection) {
         var batches = partitionInHomogeneousBatch(sourceCollection, options.getSingleKeyBatchSize());
+        if (!options.isStackBatches()) {
+            return batches;
+        }
+
         List<List<WorkContainer<K, V>>> listOfBatches = new ArrayList<>();
         List<WorkContainer<K, V>> batchInConstruction = new ArrayList<>();
         for (var batch : batches) {
