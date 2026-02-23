@@ -1,6 +1,7 @@
 package io.confluent.parallelconsumer;
 
 /*-
+ * Copyright (C) 2026 Moniepoint, Inc.
  * Copyright (C) 2020-2024 Confluent, Inc.
  */
 
@@ -76,6 +77,12 @@ public class ParallelConsumerOptions<K, V> {
     private final String managedThreadFactory = "java:comp/DefaultManagedThreadFactory";
 
     /**
+     * If enabled, virtual threads are used instead of managed thread factory
+     */
+    @Builder.Default
+    private final boolean useVirtualThreads = false;
+
+    /**
      * Micrometer MeterRegistry
      * <p>
      * Optional - if not specified CompositeMeterRegistry will be used which is NoOp
@@ -95,6 +102,9 @@ public class ParallelConsumerOptions<K, V> {
      */
     @Builder.Default
     private final Iterable<Tag> metricsTags = Tags.empty();
+
+    @Builder.Default
+    private final BatchClassifier<K, V> batchClassifier = new DefaultBatchClassifier<>();
 
     /**
      * The ordering guarantee to use.
@@ -117,7 +127,14 @@ public class ParallelConsumerOptions<K, V> {
          * Process messages in key order. Concurrency is at most the number of unique keys in a topic, limited by the
          * max concurrency or uncommitted settings.
          */
-        KEY
+        KEY,
+
+        /**
+         * Creates batches of messages of the same key. By default, only a single batch of each key exists in flight at
+         * any given moment Concurrency is at most the number of unique keys in a topic, limited by the max concurrency
+         * or uncommitted settings.
+         */
+        BATCH_BY_KEY
     }
 
     /**
@@ -444,6 +461,28 @@ public class ParallelConsumerOptions<K, V> {
     private final Integer batchSize = 1;
 
     /**
+     * The maximum number of messages in a batch of a single key.
+     * <p>
+     * If unset, it will use the value in {@link ParallelConsumerOptions#batchSize}
+     *
+     * @see ParallelConsumerOptions#batchSize
+     */
+    @Builder.Default
+    private final Integer singleKeyBatchSize = 1;
+
+    public int getSingleKeyBatchSize() {
+        return Math.max(batchSize, singleKeyBatchSize);
+    }
+
+    /**
+     * If enabled, small batches are joined up to {@link ParallelConsumerOptions#batchSize}
+     *
+     * @see ParallelConsumerOptions#batchSize
+     */
+    @Builder.Default
+    private final boolean stackBatches = true;
+
+    /**
      * Configure the amount of delay a record experiences, before a warning is logged.
      */
     @Builder.Default
@@ -513,6 +552,10 @@ public class ParallelConsumerOptions<K, V> {
 
     public boolean isProducerSupplied() {
         return getProducer() != null;
+    }
+
+    public boolean limitInFlightByKey() {
+        return ordering == ProcessingOrder.BATCH_BY_KEY;
     }
 
     /**

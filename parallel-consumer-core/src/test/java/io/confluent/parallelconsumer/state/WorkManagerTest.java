@@ -1,6 +1,7 @@
 package io.confluent.parallelconsumer.state;
 
 /*-
+ * Copyright (C) 2026 Moniepoint, Inc.
  * Copyright (C) 2020-2024 Confluent, Inc.
  */
 
@@ -165,6 +166,15 @@ public class WorkManagerTest {
         }
 
         //
+        if (order == BATCH_BY_KEY) {
+            gottenWork = wm.getWorkIfAvailable();
+            assertThat(gottenWork).hasSize(1);
+            assertOffsets(gottenWork, of(2));
+        } else {
+            gottenWork = wm.getWorkIfAvailable();
+            assertThat(gottenWork).isEmpty();
+        }
+
         gottenWork = wm.getWorkIfAvailable();
         assertThat(gottenWork).isEmpty();
     }
@@ -641,6 +651,7 @@ public class WorkManagerTest {
     @ParameterizedTest
     @EnumSource
     void resumesFromNextShard(ParallelConsumerOptions.ProcessingOrder order) {
+        Assumptions.assumeFalse(order == BATCH_BY_KEY);
         Assumptions.assumeFalse(order == KEY); // just want to test ordered vs unordered
 
         ParallelConsumerOptions<?, ?> build = ParallelConsumerOptions.builder()

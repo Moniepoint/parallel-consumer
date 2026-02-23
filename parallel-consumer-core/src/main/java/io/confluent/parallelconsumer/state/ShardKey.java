@@ -1,6 +1,7 @@
 package io.confluent.parallelconsumer.state;
 
 /*-
+ * Copyright (C) 2026 Moniepoint, Inc.
  * Copyright (C) 2020-2023 Confluent, Inc.
  */
 
@@ -30,7 +31,7 @@ public class ShardKey {
 
     public static ShardKey of(ConsumerRecord<?, ?> rec, ProcessingOrder ordering) {
         return switch (ordering) {
-            case KEY -> ofKey(rec);
+            case KEY, BATCH_BY_KEY -> ofKey(rec);
             case PARTITION, UNORDERED -> ofTopicPartition(rec);
         };
     }

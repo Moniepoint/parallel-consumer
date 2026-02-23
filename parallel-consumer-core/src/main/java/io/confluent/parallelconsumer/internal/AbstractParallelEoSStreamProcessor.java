@@ -1,6 +1,7 @@
 package io.confluent.parallelconsumer.internal;
 
 /*-
+ * Copyright (C) 2026 Moniepoint, Inc.
  * Copyright (C) 2020-2024 Confluent, Inc.
  */
 
@@ -238,6 +239,10 @@ public abstract class AbstractParallelEoSStreamProcessor<K, V> implements Parall
     @Setter
     private State state = State.UNUSED;
 
+    private final ConcurrentHashMap<K, Boolean> inFlight = new ConcurrentHashMap<>();
+    private List<WorkContainer<K, V>> workWaiting = new ArrayList<>();
+    private Map<K, Long> workWaitingStats = new HashMap<>();
+
     /**
      * Wrapped {@link ConsumerRebalanceListener} passed in by a user that we can also call on events
      */
@@ -347,16 +352,20 @@ public abstract class AbstractParallelEoSStreamProcessor<K, V> implements Parall
 
     protected ThreadPoolExecutor setupWorkerPool(int poolSize) {
         ThreadFactory defaultFactory;
-        try {
-            defaultFactory = InitialContext.doLookup(options.getManagedThreadFactory());
-        } catch (NamingException e) {
-            log.debug("Using Java SE Thread", e);
-            defaultFactory = Executors.defaultThreadFactory();
+        if (options.isUseVirtualThreads()) {
+            defaultFactory = Thread.ofVirtual().factory();
+        } else {
+            try {
+                defaultFactory = InitialContext.doLookup(options.getManagedThreadFactory());
+            } catch (NamingException e) {
+                log.debug("Using Java SE Thread", e);
+                defaultFactory = Executors.defaultThreadFactory();
+            }
         }
         ThreadFactory finalDefaultFactory = defaultFactory;
         ThreadFactory namingThreadFactory = r -> {
             Thread thread = finalDefaultFactory.newThread(r);
-            String name = thread.getName();
+            String name = thread.getName().isEmpty() ? String.valueOf(thread.threadId()) : thread.getName();
             thread.setName("pc-" + name);
             this.getMyId().ifPresent(id -> thread.setName("pc-" + name + "-" + id));
             return thread;
@@ -1033,7 +1042,15 @@ public abstract class AbstractParallelEoSStreamProcessor<K, V> implements Parall
         log.trace("Sending work ({}) to pool", batch);
         Future outputRecordFuture = workerThreadPool.get().submit(() -> {
             addInstanceMDC();
-            return runUserFunction(usersFunction, callback, batch);
+            List<Tuple<ConsumerRecord<K, V>, R>> result = runUserFunction(usersFunction, callback, batch);
+            if (options.limitInFlightByKey()) {
+                batch.forEach(b -> {
+                    if (options.getBatchClassifier().requiresUnique(b.getCr())) {
+                        inFlight.remove(b.getCr().key());
+                    }
+                });
+            }
+            return result;
         });
         // for a batch, each message in the batch shares the same result
         for (final WorkContainer<K, V> workContainer : batch) {
@@ -1043,7 +1060,7 @@ public abstract class AbstractParallelEoSStreamProcessor<K, V> implements Parall
 
     private List<List<WorkContainer<K, V>>> makeBatches(List<WorkContainer<K, V>> workToProcess) {
         int maxBatchSize = options.getBatchSize();
-        return partition(workToProcess, maxBatchSize);
+        return options.limitInFlightByKey() ? partitionInHeterogeneousUniqueBatches(workToProcess) : partition(workToProcess, maxBatchSize);
     }
 
     private static <T> List<List<T>> partition(Collection<T> sourceCollection, int maxBatchSize) {
@@ -1071,6 +1088,82 @@ public abstract class AbstractParallelEoSStreamProcessor<K, V> implements Parall
                     sourceCollection.size(),
                     listOfBatches.size(),
                     listOfBatches.stream().map(List::size).collect(Collectors.toList()));
+        }
+        return listOfBatches;
+    }
+
+    private List<List<WorkContainer<K, V>>> partitionInHomogeneousBatch(Collection<WorkContainer<K, V>> sourceCollection, int maxBatchSize) {
+        Map<K, List<WorkContainer<K, V>>> listOfBatches = new HashMap<>();
+        List<List<WorkContainer<K, V>>> batches = new ArrayList<>();
+        List<WorkContainer<K, V>> unorderedBatch = new ArrayList<>();
+        for (WorkContainer<K, V> item : sourceCollection) {
+            var requiresUnique = options.getBatchClassifier().requiresUnique(item.getCr());
+            List<WorkContainer<K, V>> batch = requiresUnique ? listOfBatches.getOrDefault(item.getCr().key(), new ArrayList<>()) : unorderedBatch;
+
+            if (batch.size() >= maxBatchSize) {
+                if (requiresUnique) {
+                    workWaiting.add(item);
+                    continue;
+                }
+                batches.add(batch);
+                unorderedBatch = new ArrayList<>();
+                batch = unorderedBatch;
+            }
+
+
+            batch.add(item);
+            if (options.getBatchClassifier().requiresUnique(item.getCr())) {
+                listOfBatches.put(item.getCr().key(), batch);
+            }
+        }
+
+        if (!unorderedBatch.isEmpty()) {
+            batches.add(unorderedBatch);
+        }
+
+        var b = new ArrayList<>(listOfBatches.values().stream().toList());
+        b.addAll(batches);
+        return b;
+    }
+
+    private List<List<WorkContainer<K, V>>> partitionInHeterogeneousUniqueBatches(Collection<WorkContainer<K, V>> sourceCollection) {
+        var batches = partitionInHomogeneousBatch(sourceCollection, options.getSingleKeyBatchSize());
+        if (!options.isStackBatches()) {
+            return batches;
+        }
+
+        List<List<WorkContainer<K, V>>> listOfBatches = new ArrayList<>();
+        List<WorkContainer<K, V>> batchInConstruction = new ArrayList<>();
+        for (var batch : batches) {
+            if (batch.isEmpty()) {
+                continue;
+            }
+
+            K key = batch.getFirst().getCr().key();
+            if (key == null) {
+                log.warn("Received batch of size {} with null key. Cannot check in flight clashes for batch: {}", batch.size(), batch);
+            } else if (options.getBatchClassifier().requiresUnique(batch.getFirst().getCr())) {
+                if (inFlight.containsKey(key)) {
+                    log.trace("Key {} already in flight, storing batch to process later", key);
+                    workWaiting.addAll(batch);
+                    workWaitingStats.put(key, workWaitingStats.getOrDefault(key, 0L) + batch.size());
+                    continue;
+                }
+                inFlight.put(key, true);
+            }
+
+            if (batchInConstruction.isEmpty()) {
+                batchInConstruction.addAll(batch);
+            } else if (batchInConstruction.size() + batch.size() <= options.getBatchSize()) {
+                batchInConstruction.addAll(batch);
+            } else {
+                listOfBatches.add(batchInConstruction);
+                batchInConstruction = new ArrayList<>(batch);
+            }
+        }
+
+        if (!batchInConstruction.isEmpty()) {
+            listOfBatches.add(batchInConstruction);
         }
         return listOfBatches;
     }
@@ -1362,6 +1455,7 @@ public abstract class AbstractParallelEoSStreamProcessor<K, V> implements Parall
             for (var wc : workContainerBatch) {
                 wc.onUserFunctionFailure(e);
                 addToMailbox(context, wc); // always add on error
+                inFlight.remove(wc.getCr().key());
             }
             throw e; // trow again to make the future failed
         } finally {
