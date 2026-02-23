@@ -658,6 +658,17 @@ This option provides the performance of maximum concurrency, while maintaining m
 .Key ordering concurrent processing of messages
 image::https://lucid.app/publicSegments/view/f7a05e99-24e6-4ea3-b3d0-978e306aa568/image.png[align="center"]
 
+=== Batched by Key
+
+Similar to ordered by key, this mode was created with batching in mind. It creates batches of a single key.
+
+Only a single batch of any key will be processed at any given time.
+If a key is received with another batch of the same key is in flight, that record will be stored in memory until it can be processed.
+
+The option stackBatches (default = true) allows to join smaller batches together. If disabled, each batch will have a single key.
+The BatchClassifier function allows to dynamically define if a record key needs to be unique in flight. If not, it will be treated as if UNORDERED
+
+
 === Retries and Ordering
 
 Even during retries, offsets will always be committed only after successful processing, and in order.
