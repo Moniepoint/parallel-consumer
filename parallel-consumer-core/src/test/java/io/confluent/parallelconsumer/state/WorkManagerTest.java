@@ -135,10 +135,6 @@ public class WorkManagerTest {
     @ParameterizedTest
     @EnumSource
     void basic(ParallelConsumerOptions.ProcessingOrder order) {
-        if (order == BATCH_BY_KEY) {
-            return;
-        }
-
         setupWorkManager(ParallelConsumerOptions.builder()
                 .ordering(order)
                 .build());
@@ -169,6 +165,15 @@ public class WorkManagerTest {
         }
 
         //
+        if (order == BATCH_BY_KEY) {
+            gottenWork = wm.getWorkIfAvailable();
+            assertThat(gottenWork).hasSize(1);
+            assertOffsets(gottenWork, of(2));
+        } else {
+            gottenWork = wm.getWorkIfAvailable();
+            assertThat(gottenWork).isEmpty();
+        }
+
         gottenWork = wm.getWorkIfAvailable();
         assertThat(gottenWork).isEmpty();
     }
