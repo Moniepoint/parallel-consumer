@@ -1,6 +1,6 @@
 
 /*-
- * Copyright (C) 2020-2025 Confluent, Inc.
+ * Copyright (C) 2026 Moniepoint, Inc.
  */
 
 package io.confluent.parallelconsumer.integrationTests;

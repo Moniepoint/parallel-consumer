@@ -1,6 +1,7 @@
 package io.confluent.parallelconsumer;
 
 /*-
+ * Copyright (C) 2026 Moniepoint, Inc.
  * Copyright (C) 2020-2024 Confluent, Inc.
  */
 
